@@ -40,5 +40,5 @@ app.get('/neo4j', async (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(API rodando em http://localhost:${port})
+  console.log(`API rodando em http://localhost:${port}`);
 })
