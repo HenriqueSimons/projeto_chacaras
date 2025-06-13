@@ -2,10 +2,13 @@ import express from 'express'
 import mysql from 'mysql2/promise'
 import neo4j from 'neo4j-driver'
 import dotenv from 'dotenv'
+import cors from 'cors' // <-- adicionado
 
 dotenv.config()
 const app = express()
 const port = 3000
+
+app.use(cors({ origin: 'http://localhost:8080' })) // <-- adicionado
 
 app.get('/mysql', async (req, res) => {
   try {
@@ -18,7 +21,8 @@ app.get('/mysql', async (req, res) => {
     const [rows] = await conn.query('SELECT NOW() AS hora')
     res.json({ status: 'ok', data: rows[0] })
   } catch (err) {
-    res.status(500).json({ status: 'error', error: err.message })
+    console.error('Erro MySQL:', err) // <-- Adicionado para logar o erro no terminal
+    res.status(500).json({ status: 'error', error: err.message }) // já retorna o erro para o frontend
   }
 })
 

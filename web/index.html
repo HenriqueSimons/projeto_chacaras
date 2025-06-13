@@ -19,8 +19,13 @@
     fetch('http://localhost:3000/mysql')
       .then(r => r.json())
       .then(d => {
-        document.getElementById('mysql').textContent = 'MySQL: ' + (d.status === 'ok' ? 'Conectado ✅' : 'Erro ❌')
-        document.getElementById('mysql').className = d.status === 'ok' ? 'ok' : 'fail'
+        if (d.status === 'ok') {
+          document.getElementById('mysql').textContent = 'MySQL: Conectado ✅'
+          document.getElementById('mysql').className = 'ok'
+        } else {
+          document.getElementById('mysql').textContent = 'MySQL: Erro ❌ (' + (d.error || 'desconhecido') + ')'
+          document.getElementById('mysql').className = 'fail'
+        }
       })
 
     fetch('http://localhost:3000/neo4j')
