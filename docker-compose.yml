@@ -12,6 +12,11 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uuser", "-ppassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   neo4j:
     image: neo4j:5
@@ -28,8 +33,11 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - mysql
-      - neo4j
+      mysql:
+        condition: service_healthy
+      neo4j:
+        condition: service_started
+    restart: always
 
   web:
     image: nginx:alpine
@@ -37,6 +45,14 @@ services:
       - "8080:80"
     volumes:
       - ./web:/usr/share/nginx/html
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
+    depends_on:
+      - mysql
 
 volumes:
   mysql_data:
