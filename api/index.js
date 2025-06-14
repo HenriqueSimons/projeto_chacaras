@@ -166,6 +166,45 @@ app.post('/reservas', async (req, res) => {
   }
 })
 
+// Listar reservas de uma chácara
+app.get('/reservas', async (req, res) => {
+  try {
+    const { chacara_id } = req.query;
+    const conn = await mysql.createConnection({
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASSWORD,
+      database: process.env.MYSQL_DATABASE,
+    });
+    const [rows] = await conn.query(
+      'SELECT * FROM reservas WHERE chacara_id = ? ORDER BY checkin DESC',
+      [chacara_id]
+    );
+    await conn.end();
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Cancelar (deletar) reserva
+app.delete('/reservas/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const conn = await mysql.createConnection({
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASSWORD,
+      database: process.env.MYSQL_DATABASE,
+    });
+    await conn.query('DELETE FROM reservas WHERE id = ?', [id]);
+    await conn.end();
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Sincroniza todas as chácaras do MySQL para o Neo4j
 async function syncChacarasToNeo4j(session) {
   const conn = await mysql.createConnection({
