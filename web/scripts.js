@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (select) {
         chacaras.forEach(c => {
           const opt = document.createElement('option');
-          opt.value = c.nome;
+          opt.value = c.id; // agora envia o id
           opt.textContent = c.nome;
           select.appendChild(opt);
         });
@@ -143,7 +143,7 @@ function submitReservation() {
       campo: document.getElementById('check-campo').checked,
       eventos: document.getElementById('check-eventos').checked
     },
-    chacara: document.getElementById('chacara').value // sem acento
+    chacara_id: document.getElementById('chacara').value // agora envia o id
   };
 
   // Enviar dados para o backend que se conecta ao Neo4j
