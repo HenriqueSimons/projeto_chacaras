@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Buscar chácaras e preencher select
+  // Buscar chácaras e preencher select (apenas se existir o select do modal)
   fetch('http://localhost:3000/chacaras')
     .then(r => r.json())
     .then(chacaras => {
@@ -66,30 +66,24 @@ document.addEventListener('DOMContentLoaded', function() {
       if (select) {
         chacaras.forEach(c => {
           const opt = document.createElement('option');
-          opt.value = c.id; // agora envia o id
+          opt.value = c.id;
           opt.textContent = c.nome;
           select.appendChild(opt);
         });
       }
     });
 
-  // Event listener do botão de reserva (corrigido)
-  const btnReservar = document.getElementById('btn-reservar');
-  if (btnReservar) {
-    btnReservar.addEventListener('click', function(e) {
-      e.preventDefault();
-      submitReservation();
-    });
-  }
-
-  carregarChacaras();
+   carregarChacaras();
 
   // Modal reserva
-  const reservaModal = new bootstrap.Modal(document.getElementById('modalReserva'));
-  document.getElementById('reservation-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    submitReservation(reservaModal);
-  });
+  const reservaModalEl = document.getElementById('modalReserva');
+  if (reservaModalEl) {
+    const reservaModal = new bootstrap.Modal(reservaModalEl);
+    document.getElementById('reservation-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitReservation(reservaModal);
+    });
+  }
 });
 
 // Função para mostrar informações adicionais sobre comodidades
@@ -152,7 +146,8 @@ function submitReservation(modal) {
       campo: document.getElementById('check-campo').checked,
       eventos: document.getElementById('check-eventos').checked
     },
-    chacara_id: document.getElementById('modal-chacara-id').value
+    // Corrigir para pegar o chacara_id do campo correto (do modal ou do select)
+    chacara_id: document.getElementById('modal-chacara-id')?.value || document.getElementById('chacara')?.value
   };
 
   // Enviar dados para o backend que se conecta ao Neo4j
@@ -256,6 +251,16 @@ window.abrirReserva = function(chacara_id, chacara_nome) {
   document.getElementById('reservation-error').style.display = 'none';
   new bootstrap.Modal(document.getElementById('modalReserva')).show();
 };
+
+window.cancelarReserva = function(id, chacara_id) {
+  if (!confirm('Tem certeza que deseja cancelar esta reserva?')) return;
+  fetch(`http://localhost:3000/reservas/${id}`, { method: 'DELETE' })
+    .then(r => r.json())
+    .then(() => carregarReservasChacara(chacara_id));
+};
+  document.getElementById('reservation-error').style.display = 'none';
+  new bootstrap.Modal(document.getElementById('modalReserva')).show();
+
 
 window.cancelarReserva = function(id, chacara_id) {
   if (!confirm('Tem certeza que deseja cancelar esta reserva?')) return;

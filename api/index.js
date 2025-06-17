@@ -146,6 +146,16 @@ app.post('/reservas', async (req, res) => {
       database: process.env.MYSQL_DATABASE,
     })
 
+    // Verifica se já existe reserva igual (mesmo chacara_id, nome, checkin, checkout)
+    const [dups] = await conn.execute(
+      `SELECT id FROM reservas WHERE chacara_id = ? AND nome = ? AND checkin = ? AND checkout = ?`,
+      [chacara_id, nome, checkin, checkout]
+    );
+    if (dups.length > 0) {
+      await conn.end();
+      return res.status(409).json({ error: 'Reserva já existe para estes dados.' });
+    }
+
     const [result] = await conn.execute(
       `INSERT INTO reservas
         (chacara_id, nome, email, telefone, pessoas, checkin, checkout, mensagem, piscina, churrasqueira, campo, eventos)
